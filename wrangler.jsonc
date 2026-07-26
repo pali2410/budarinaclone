@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "budarinaclone",
+  "compatibility_date": "2026-07-26",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".",
+    "exclude": [
+      "node_modules/**",
+      ".git/**",
+      ".github/**",
+      "raw_site/**",
+      "scripts/**",
+      "styles/**",
+      "3d_models/**",
+      "chimes-project/**",
+      "package-lock.json",
+      "bun.lock",
+      "bun.lockb",
+      "*.log"
+    ]
+  }
+}

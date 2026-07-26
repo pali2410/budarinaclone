@@ -1,7 +1,8 @@
 {
-  "name": "budarina-chimes",
+  "name": "budarinaclone",
   "version": "1.0.0",
   "description": "Budarina Chimes — Interactive cultural door curtain experience replica",
+  "private": true,
   "scripts": {
     "dev": "npx serve . --listen 3000",
     "start": "npx serve . --listen 3000",
@@ -10,9 +11,7 @@
   "keywords": [
     "chimes",
     "interactive",
-    "threejs",
-    "physics",
-    "web-audio"
+    "threejs"
   ],
   "author": "Paramveer Sinh Zala",
   "license": "MIT"
