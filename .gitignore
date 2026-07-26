@@ -2,3 +2,11 @@ node_modules/
 .DS_Store
 .vscode/
 *.log
+
+# Ignore extraction scratchpad folders
+raw_site/
+scripts/
+styles/
+3d_models/
+chimes-project/
+manifest.json
