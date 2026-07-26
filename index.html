@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budarina — China</title>
+    <meta name="description" content="An interactive cultural experience — hanging chime curtains woven from architecture, wisdom, language, and sound of 13 countries." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎏</text></svg>" />
+    <link rel="stylesheet" href="./style.css" />
+    <!-- Three.js for 3D mascot -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div class="stage" id="stage" data-view="home">
+      <header class="topbar">
+        <div class="brand-nav">
+          <a
+            class="brand"
+            href="https://www.instagram.com/marina_uiux/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Budarina</a
+          >
+          <nav class="menu" aria-label="Primary">
+            <a class="is-active" href="#home" data-view="home">Home</a>
+            <span class="dot" aria-hidden="true"></span>
+            <a href="#destinations" data-view="destinations">Destinations</a>
+            <span class="dot" aria-hidden="true"></span>
+            <a href="#contributions" data-view="contributions">Contributions</a>
+          </nav>
+        </div>
+        <button type="button" class="chat-btn" id="chatBtn" aria-expanded="false">
+          <span class="chat-btn__label">Play</span>
+        </button>
+      </header>
+
+      <button
+        type="button"
+        class="country-btn country-btn--left"
+        id="btnLeft"
+        data-side="left"
+        data-country="vietnam"
+        aria-label="Vietnam"
+      >
+        <span class="country-btn__icon" aria-hidden="true">
+          <img id="btnLeftIcon" src="./images/selector-vietnam.png" alt="" />
+        </span>
+        <span class="country-btn__label" id="btnLeftLabel">Vietnam</span>
+      </button>
+
+      <button
+        type="button"
+        class="country-btn country-btn--right"
+        id="btnRight"
+        data-side="right"
+        data-country="japan"
+        aria-label="Japan"
+      >
+        <span class="country-btn__icon" aria-hidden="true">
+          <img id="btnRightIcon" src="./images/selector-japan.png" alt="" />
+        </span>
+        <span class="country-btn__label" id="btnRightLabel">Japan</span>
+      </button>
+
+      <div class="area" id="area" data-country="china">
+        <div class="scene" id="scene">
+          <div class="shadow" aria-hidden="true">
+            <img class="shadow__layer shadow__layer--sharp" src="./images/shadow.svg" alt="" />
+            <img class="shadow__layer shadow__layer--soft" src="./images/shadow.svg" alt="" />
+            <img class="shadow__layer shadow__layer--softer" src="./images/shadow.svg" alt="" />
+            <img class="shadow__layer shadow__layer--softest" src="./images/shadow.svg" alt="" />
+          </div>
+          <div id="container" class="strings"></div>
+          <div class="roof" aria-hidden="true">
+            <img id="roofImg" src="./images/roof-china.png" alt="" />
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-copy" id="bottomCopy">
+        <section class="heading" aria-label="Intro">
+          <p class="eyebrow">
+            <span id="eyebrowText"
+              ><strong>缘分</strong> (Yuánfèn) A destined meeting</span
+            >
+          </p>
+          <h1 id="pageTitle">
+            China — golden courtyards, silk-road myths, roofs that refuse gravity
+          </h1>
+        </section>
+
+        <div class="aside-block">
+          <p class="aside" id="pageAside">
+            Wander forbidden gardens, painted eaves, and stories older than the
+            maps that tried to hold them.
+          </p>
+          <div class="aside-actions">
+            <div class="mobile-tabs" id="mobileTabs">
+              <a href="#home" data-view="home" class="about-btn mobile-tab">Home</a>
+              <a href="#destinations" data-view="destinations" class="about-btn mobile-tab">Destinations</a>
+              <a href="#contributions" data-view="contributions" class="about-btn mobile-tab">Contributions</a>
+            </div>
+            <button type="button" class="about-btn" id="aboutBtn" aria-expanded="false" aria-controls="aboutModal">About</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="about"
+        id="aboutModal"
+        hidden
+        aria-hidden="true"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="aboutTitle"
+      >
+        <button type="button" class="about__backdrop" id="aboutCloseBg" aria-label="Close about"></button>
+        <div class="about__panel">
+          <button type="button" class="about__close" id="aboutClose" aria-label="Close">
+            Close
+          </button>
+          <div class="about__photo about__photo--model" id="mascotContainer">
+            <canvas id="mascotCanvas"></canvas>
+            <div class="mascot-loading" id="mascotLoading">Loading 3D…</div>
+          </div>
+          <div class="about__copy">
+            <h2 class="about__title" id="aboutTitle">I'm Paramveer Sinh Zala</h2>
+            <div class="about__body">
+              <p>I'm a developer who loves crafting interactive digital experiences — blending technology, design, and culture into something alive.</p>
+              <p>I'm exploring how the web can feel tactile, responsive, and full of personality. Every interaction should feel like turning a new page.</p>
+              <p>This project was built as a faithful local replica of Marina Budarina's Chimes — an incredible piece of interactive cultural art.</p>
+              <p>A small step toward making the internet playful again.</p>
+            </div>
+            <div class="about__links">
+              <a href="mailto:zalaparamveer13@gmail.com" rel="noopener noreferrer">zalaparamveer13@gmail.com</a>
+              <a href="https://www.linkedin.com/in/paramveer-sinh-zala-601114423/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+            <p class="about__credit">
+              * Credits for strings physics —
+              <a
+                href="https://codepen.io/shubniggurath/pen/ZYpjorm"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Liam Egan</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <section
+        class="contributions"
+        id="contributionsView"
+        hidden
+        aria-label="Contributions"
+      >
+        <div class="contributions__inner">
+          <div class="contributions__header">
+            <h2 class="contributions__title" id="contributionsTitle">Contributions</h2>
+            <p class="contributions__prompt">
+              Where are you from? Which country should we add next?
+            </p>
+            <form class="contributions__form" id="contributionsForm">
+              <label class="visually-hidden" for="contributionsInput">Country name</label>
+              <input
+                type="text"
+                class="contributions__input"
+                id="contributionsInput"
+                name="country"
+                maxlength="40"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Country name"
+                required
+              />
+              <button type="submit" class="contributions__submit" id="contributionsSubmit">
+                Add
+              </button>
+            </form>
+            <p class="contributions__hint" id="contributionsHint" hidden></p>
+          </div>
+          <div class="contributions__stage">
+            <p class="contributions__empty" id="contributionsEmpty">
+              No contributions yet — hang the first country.
+            </p>
+            <div class="contributions__cloth" id="contributionsCloth" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="destinations"
+        id="destinationsView"
+        hidden
+        aria-label="Destinations"
+      >
+        <div
+          class="carousel"
+          id="carousel"
+          role="listbox"
+          aria-label="Country roofs"
+          tabindex="0"
+        >
+          <div class="carousel__viewport" id="carouselViewport">
+            <div class="carousel__track" id="carouselTrack"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="./script.js"></script>
+    <script type="module" src="./mascot.js"></script>
+  </body>
+</html>

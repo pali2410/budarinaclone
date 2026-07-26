@@ -1,0 +1,2133 @@
+/* Full-bleed canvas — Figma frame 1600×900 proportions, fluid */
+
+:root {
+  --area-w: 492px;
+  --area-h: 468px;
+  /* Default China roof from Figma 605:6500 crop → full PNG placement */
+  --roof-x: -180px;
+  --roof-y: -508px;
+  --roof-w: 841px;
+  --roof-h: 841px;
+  /* Figma shadow 605:6464 — x:0 y:0 w:996 h:468 (no blur pad) */
+  --shadow-w: 996px;
+  --shadow-h: 468px;
+  --ink: #58423c;
+  --ink-strong: #3a2d2a;
+  --ink-muted: rgba(88, 66, 60, 0.6);
+  --ink-soft: rgba(88, 66, 60, 0.76);
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --display: "PP Eiko", "Times New Roman", serif;
+  --pad-x: clamp(24px, 7.125vw, 114px);
+  --pad-bottom: clamp(48px, 8.9vh, 80px);
+  --ease-scene: cubic-bezier(0.42, 0, 1, 1); /* ease-in */
+  --ease-char: cubic-bezier(0.42, 0, 1, 1);
+  --scene-ms: 780ms;
+  --copy-ms: 480ms;
+  --layer-gap: 0.1s;
+  --char-stagger: 0.02s;
+}
+
+@font-face {
+  font-family: "PP Eiko";
+  src: url("./fonts/PPEiko-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #e8dfd0 url("./images/bg.png") center / cover no-repeat;
+  color: var(--ink);
+  font-family: var(--mono);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ─── Top bar ─── */
+.topbar {
+  position: absolute;
+  z-index: 20;
+  /* Figma Items y:33 / Configure y:32 on 1600×900 */
+  top: 32px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.topbar > * {
+  pointer-events: auto;
+}
+
+.brand-nav {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.brand {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.09em;
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu a {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease,
+    text-decoration-thickness 160ms ease;
+}
+
+.menu a:hover {
+  color: var(--ink-strong);
+  text-decoration-color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+}
+
+.menu a:focus-visible {
+  color: var(--ink-strong);
+  text-decoration-color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.menu a.is-active {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* Active stays weight-marked; hover only deepens ink — no underline */
+.menu a.is-active:hover,
+.menu a.is-active:focus-visible {
+  color: var(--ink-strong);
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+}
+
+.dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.chat-btn {
+  position: relative;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  width: 107px;
+  height: 36px;
+  padding: 0;
+  /* Wavy dark SVG from Figma 615:6816 — shape only; label is HTML (PP Eiko) */
+  background: transparent url("./images/configure-btn.svg") center / 100% 100% no-repeat;
+  color: #fff;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+  white-space: nowrap;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.chat-btn__label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  text-align: center;
+  line-height: 36px;
+  pointer-events: none;
+}
+
+.chat-btn:hover {
+  filter: brightness(1.06);
+}
+
+.chat-btn[aria-expanded="true"] {
+  filter: brightness(1.1);
+}
+
+/* ─── Country side buttons — Figma 609:6644 / 608:6641 (y:279 on 1600×900) ─── */
+.country-btn {
+  position: absolute;
+  z-index: 15;
+  /* Figma 609:6644 / 608:6641 — y:279 on 1600×900 */
+  top: calc(279 / 900 * 100%);
+  width: 80px;
+  height: 80px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  appearance: none;
+  background-color: transparent;
+  /* Wavy ink frame (Figma 615:6824 / 615:6827), not a hard box */
+  background-image: url("./images/selector-frame.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 84px 84px;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--ink);
+  overflow: visible;
+  box-sizing: border-box;
+  transition:
+    transform 220ms var(--ease-scene),
+    opacity 220ms ease,
+    filter 180ms ease;
+}
+
+.country-btn:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.country-btn:hover {
+  transform: translateY(-2px);
+}
+
+.country-btn:active {
+  transform: translateY(0);
+}
+
+.country-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.country-btn--left {
+  left: var(--pad-x);
+}
+
+.country-btn--right {
+  right: var(--pad-x);
+}
+
+.country-btn__icon {
+  position: relative;
+  display: block;
+  width: 67px;
+  height: 21px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.country-btn__icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Japan — Figma 616:6102: 76×22 */
+.country-btn[data-country="japan"] .country-btn__icon {
+  width: 76px;
+  height: 22px;
+}
+
+/* Vietnam — Figma 617:6130: 67×21 */
+.country-btn[data-country="vietnam"] .country-btn__icon {
+  width: 67px;
+  height: 21px;
+}
+
+/* China — Figma 617:6112: 76×22 */
+.country-btn[data-country="china"] .country-btn__icon {
+  width: 76px;
+  height: 22px;
+}
+
+/* Kazakhstan — Figma 617:6117: 64×30 */
+.country-btn[data-country="kazakhstan"] .country-btn__icon {
+  width: 64px;
+  height: 30px;
+}
+.country-btn[data-country="kazakhstan"] .country-btn__label {
+  font-size: 12px;
+  letter-spacing: -0.06em;
+}
+
+/* Russia — Figma 617:6122: 70×33 */
+.country-btn[data-country="russia"] .country-btn__icon {
+  width: 70px;
+  height: 33px;
+}
+
+/* France — Figma 633:311: 56×30 */
+.country-btn[data-country="france"] .country-btn__icon {
+  width: 56px;
+  height: 30px;
+}
+
+/* India — Figma 633:277: 70×44 */
+.country-btn[data-country="india"] .country-btn__icon {
+  width: 70px;
+  height: 44px;
+}
+
+/* UK — Figma 633:299: 62×43 */
+.country-btn[data-country="uk"] .country-btn__icon {
+  width: 62px;
+  height: 43px;
+}
+
+/* Norway — Figma 633:321: 62×28 */
+.country-btn[data-country="norway"] .country-btn__icon {
+  width: 62px;
+  height: 28px;
+}
+
+/* Italy — Figma 633:331: 54×50 */
+.country-btn[data-country="italy"] .country-btn__icon {
+  width: 54px;
+  height: 50px;
+}
+
+/* USA — Figma 634:388: 64×36 */
+.country-btn[data-country="usa"] .country-btn__icon {
+  width: 64px;
+  height: 36px;
+}
+
+/* Brazil — Figma 634:401: 64×28 */
+.country-btn[data-country="brazil"] .country-btn__icon {
+  width: 64px;
+  height: 28px;
+}
+
+/* Iran — Figma 634:410: 64×26 */
+.country-btn[data-country="iran"] .country-btn__icon {
+  width: 64px;
+  height: 26px;
+}
+
+.country-btn__label {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* ─── Strings area — Figma 605:6463: x:554 y:357 w:492 h:468 ─── */
+.area {
+  position: absolute;
+  left: 50%;
+  top: calc(357 / 900 * 100%);
+  width: var(--area-w);
+  height: var(--area-h);
+  transform: translateX(-50%);
+  z-index: 1;
+  overflow: visible;
+}
+
+/* Figma 605:6500 China — frame -149,-280 779×288; full PNG fill ≈ -180,-508 841² */
+.area[data-country="china"] {
+  --roof-x: -180px;
+  --roof-y: -508px;
+  --roof-w: 841px;
+  --roof-h: 841px;
+}
+
+.area[data-country="japan"] {
+  --roof-x: -71px;
+  --roof-y: -367px;
+  --roof-w: 634px;
+  --roof-h: 634px;
+}
+
+.area[data-country="vietnam"] {
+  --roof-x: -92px;
+  --roof-y: -399px;
+  --roof-w: 676px;
+  --roof-h: 676px;
+}
+
+/* Figma 612:6710 — Kazakhstan yurt (+20px) */
+.area[data-country="kazakhstan"] {
+  --roof-x: -14px;
+  --roof-y: -206px;
+  --roof-w: 519px;
+  --roof-h: 271px;
+}
+
+/* Figma 612:6754 — Russia terem */
+.area[data-country="russia"] {
+  --roof-x: -36px;
+  --roof-y: -247px;
+  --roof-w: 564px;
+  --roof-h: 284px;
+}
+
+/* Figma 633:304 — France mansard */
+.area[data-country="france"] {
+  --roof-x: -38px;
+  --roof-y: -267px;
+  --roof-w: 569px;
+  --roof-h: 271px;
+}
+
+/* Figma 633:254 — India dome */
+.area[data-country="india"] {
+  --roof-x: -95px;
+  --roof-y: -343px;
+  --roof-w: 681px;
+  --roof-h: 466px;
+}
+
+/* Figma 633:259 — UK thatch */
+.area[data-country="uk"] {
+  --roof-x: -81px;
+  --roof-y: -296px;
+  --roof-w: 625px;
+  --roof-h: 411px;
+}
+
+/* Figma 633:315 — Norway sod roof */
+.area[data-country="norway"] {
+  --roof-x: -82px;
+  --roof-y: -226px;
+  --roof-w: 655px;
+  --roof-h: 248px;
+}
+
+/* Figma 633:325 — Italy duomo */
+.area[data-country="italy"] {
+  --roof-x: -32px;
+  --roof-y: -418px;
+  --roof-w: 547px;
+  --roof-h: 500px;
+}
+
+/* Figma 634:382 — USA shingle gable */
+.area[data-country="usa"] {
+  --roof-x: -77px;
+  --roof-y: -276px;
+  --roof-w: 629px;
+  --roof-h: 285px;
+}
+
+/* Figma 634:392 — Brazil terracotta */
+.area[data-country="brazil"] {
+  --roof-x: -77px;
+  --roof-y: -236px;
+  --roof-w: 629px;
+  --roof-h: 259px;
+}
+
+/* Figma 634:395 — Iran windcatchers */
+.area[data-country="iran"] {
+  --roof-x: -77px;
+  --roof-y: -220px;
+  --roof-w: 629px;
+  --roof-h: 228px;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+
+.scene.is-animating {
+  pointer-events: none;
+}
+
+.shadow {
+  /* Figma progressive cast under roof — stacked blur layers approximate soft falloff */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--shadow-w);
+  height: var(--shadow-h);
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+  opacity: 0.92;
+}
+
+/* Progressive blur: sharp under the roof → softer toward the far end.
+   Native CSS can't do Figma progressive blur in one filter, so we stack
+   increasingly blurred copies masked along the cast direction. */
+.shadow__layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+.shadow__layer--sharp {
+  filter: blur(0);
+  -webkit-mask-image: linear-gradient(
+    160deg,
+    #000 0%,
+    #000 10%,
+    transparent 32%
+  );
+  mask-image: linear-gradient(160deg, #000 0%, #000 10%, transparent 32%);
+}
+
+.shadow__layer--soft {
+  filter: blur(8px);
+  opacity: 0.95;
+  -webkit-mask-image: linear-gradient(
+    160deg,
+    transparent 0%,
+    #000 14%,
+    #000 48%,
+    transparent 72%
+  );
+  mask-image: linear-gradient(
+    160deg,
+    transparent 0%,
+    #000 14%,
+    #000 48%,
+    transparent 72%
+  );
+}
+
+.shadow__layer--softer {
+  filter: blur(18px);
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(
+    160deg,
+    transparent 12%,
+    #000 36%,
+    #000 70%,
+    transparent 95%
+  );
+  mask-image: linear-gradient(
+    160deg,
+    transparent 12%,
+    #000 36%,
+    #000 70%,
+    transparent 95%
+  );
+}
+
+.shadow__layer--softest {
+  filter: blur(32px);
+  opacity: 0.75;
+  -webkit-mask-image: linear-gradient(
+    160deg,
+    transparent 30%,
+    #000 58%,
+    #000 100%
+  );
+  mask-image: linear-gradient(160deg, transparent 30%, #000 58%, #000 100%);
+}
+
+.strings {
+  --pad: 420px;
+  position: absolute;
+  left: calc(var(--pad) * -1);
+  top: calc(var(--pad) * -1);
+  width: calc(100% + var(--pad) * 2);
+  height: calc(100% + var(--pad) * 2);
+  z-index: 2;
+  overflow: visible;
+  touch-action: none;
+  pointer-events: none;
+}
+
+.strings canvas {
+  display: block;
+  /* Must fill .strings — inline style from sizeCanvas would otherwise keep
+     desktop px and misalign cloth under a scaled mobile area. */
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto;
+}
+
+.roof {
+  position: absolute;
+  left: var(--roof-x);
+  top: var(--roof-y);
+  width: var(--roof-w);
+  height: var(--roof-h);
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.roof img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.area[data-country="kazakhstan"] .roof img,
+.area[data-country="russia"] .roof img,
+.area[data-country="france"] .roof img,
+.area[data-country="india"] .roof img,
+.area[data-country="uk"] .roof img,
+.area[data-country="norway"] .roof img,
+.area[data-country="italy"] .roof img,
+.area[data-country="usa"] .roof img,
+.area[data-country="brazil"] .roof img,
+.area[data-country="iran"] .roof img {
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+/* ─── Bottom copy — Figma 605:6488 heading + 605:6466 aside ─── */
+.bottom-copy {
+  position: absolute;
+  z-index: 10;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  /* heading y:602 h:218 → bottom 80 on 900 */
+  bottom: var(--pad-bottom);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  pointer-events: none;
+}
+
+.heading {
+  /* Figma 605:6488 — base w:410; widen so long titles (China etc.) aren’t cramped */
+  width: calc(50% - (var(--area-w) / 2) - var(--pad-x) + 100px);
+  max-width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 32px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin: 0;
+  max-width: 100%;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink);
+  white-space: normal;
+}
+
+.eyebrow strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.heading h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(36px, 3.5vw, 56px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: var(--ink-strong);
+}
+
+.aside {
+  /* Figma 605:6466 — x:1255 y:747 w:232 h:63 */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  margin-left: 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink);
+  flex-shrink: 0;
+  align-self: stretch;
+  margin-bottom: 0;
+}
+
+.aside-block {
+  width: 232px;
+  max-width: min(232px, 32vw);
+  margin-left: auto;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  flex-shrink: 0;
+  align-self: flex-end;
+  pointer-events: auto;
+}
+
+.aside-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px 18px;
+}
+
+.mobile-tabs {
+  display: none;
+}
+
+.mobile-tab.is-active {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.about-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition:
+    color 160ms ease,
+    text-decoration-thickness 160ms ease;
+}
+
+.about-btn:hover {
+  color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+}
+
+.about-btn:focus-visible {
+  color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* ─── About modal ─── */
+.about[hidden] {
+  display: none !important;
+}
+
+.about {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.about__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: rgba(58, 45, 42, 0.28);
+  backdrop-filter: blur(2px);
+}
+
+.about__panel {
+  position: relative;
+  z-index: 1;
+  width: min(860px, 100%);
+  max-height: min(860px, calc(100vh - 48px));
+  overflow: auto;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) 1.15fr;
+  gap: 28px;
+  padding: 28px;
+  background:
+    linear-gradient(160deg, rgba(255, 250, 240, 0.55), transparent 42%),
+    rgba(244, 234, 216, 0.97);
+  color: var(--ink-strong);
+  box-shadow: 0 24px 60px rgba(58, 45, 42, 0.22);
+}
+
+.about__close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 2;
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about__close:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.about__photo {
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: rgba(88, 66, 60, 0.08);
+}
+
+.about__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+/* ─── 3D Mascot variant ─── */
+.about__photo--model {
+  position: relative;
+  background: linear-gradient(
+    170deg,
+    rgba(255, 248, 232, 0.6) 0%,
+    rgba(232, 215, 190, 0.4) 100%
+  );
+  overflow: hidden;
+  border-radius: 0;
+  cursor: grab;
+}
+
+.about__photo--model:active {
+  cursor: grabbing;
+}
+
+#mascotCanvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  inset: 0;
+}
+
+.mascot-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  color: var(--ink-muted);
+  background: transparent;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+  /* Pulsing shimmer while loading */
+  animation: mascot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes mascot-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+
+.about__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 8px;
+  padding-right: 36px;
+  min-width: 0;
+}
+
+.about__title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: var(--ink-strong);
+}
+
+.about__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about__body p {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.about__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 4px;
+}
+
+.about__links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.08em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about__links a:hover {
+  color: var(--ink-strong);
+}
+
+.about__credit {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.about__credit a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about__credit a:hover {
+  color: var(--ink-strong);
+}
+
+@media (max-width: 720px) {
+  .about {
+    padding: 16px;
+    align-items: end;
+  }
+
+  .about__panel {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 20px;
+    width: 100%;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+  }
+
+  .about__photo {
+    max-width: 180px;
+  }
+
+  .about__copy {
+    padding-right: 0;
+    padding-top: 0;
+  }
+
+  .about__title {
+    font-size: clamp(24px, 7vw, 32px);
+    padding-right: 52px;
+  }
+}
+
+/* ─── Contributions modal ─── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contributions[hidden] {
+  display: none !important;
+}
+
+.stage[data-view="contributions"] .area,
+.stage[data-view="contributions"] .country-btn,
+.stage[data-view="contributions"] .bottom-copy {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.stage[data-view="home"] .contributions,
+.stage:not([data-view="contributions"]) .contributions {
+  display: none;
+}
+
+.contributions {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.contributions__inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 96px var(--pad-x) 40px;
+  box-sizing: border-box;
+  color: var(--ink-strong);
+}
+
+.contributions__header {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 0 0 auto;
+  max-width: 560px;
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.contributions__title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: var(--ink-strong);
+}
+
+.contributions__prompt {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.contributions__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 4px;
+  pointer-events: auto;
+}
+
+.contributions__input {
+  flex: 1 1 180px;
+  min-width: 0;
+  appearance: none;
+  border: none;
+  border-bottom: 1px solid rgba(88, 66, 60, 0.35);
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink-strong);
+  outline: none;
+  cursor: text;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.contributions__input::placeholder {
+  color: var(--ink-muted);
+}
+
+.contributions__input:focus {
+  border-bottom-color: var(--ink-strong);
+}
+
+.contributions__submit {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 21px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  pointer-events: auto;
+  transition:
+    color 160ms ease,
+    text-decoration-thickness 160ms ease;
+}
+
+.contributions__submit:hover {
+  color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+}
+
+.contributions__submit:focus-visible {
+  color: var(--ink-strong);
+  text-decoration-thickness: 2px;
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.contributions__hint {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: -0.06em;
+  color: var(--ink-muted);
+}
+
+.contributions__hint[hidden] {
+  display: none !important;
+}
+
+.contributions__stage {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 240px;
+  overflow: visible;
+  /* Match parchment / stage — no contrasting panel behind the cloth */
+  background: transparent;
+}
+
+.contributions__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: -0.06em;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+.contributions__empty[hidden] {
+  display: none !important;
+}
+
+.contributions__cloth {
+  /* Match main .strings: oversized host so sway isn't cropped. */
+  --pad: 56px;
+  position: absolute;
+  left: calc(var(--pad) * -1);
+  top: calc(var(--pad) * -1);
+  width: calc(100% + var(--pad) * 2);
+  height: calc(100% + var(--pad) * 2);
+  overflow: visible;
+  touch-action: none;
+  pointer-events: none;
+}
+
+.contributions__cloth canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto;
+}
+
+@media (max-width: 720px) {
+  .contributions__inner {
+    padding: 80px var(--pad-x) 28px;
+    gap: 16px;
+  }
+
+  .contributions__title {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .contributions__stage {
+    min-height: 200px;
+  }
+
+  .contributions__cloth {
+    --pad: 56px;
+  }
+}
+
+.heading h1 .word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.heading h1 .char {
+  display: inline-block;
+  will-change: opacity, transform, filter;
+  transition:
+    opacity 280ms var(--ease-scene),
+    transform 280ms var(--ease-scene),
+    filter 280ms var(--ease-scene);
+}
+
+.heading h1 .char--space {
+  width: 0.28em;
+}
+
+.bottom-copy .eyebrow,
+.bottom-copy .aside {
+  transition:
+    opacity var(--copy-ms) var(--ease-scene),
+    transform var(--copy-ms) var(--ease-scene);
+}
+
+.bottom-copy.is-leaving .eyebrow,
+.bottom-copy.is-leaving .aside {
+  opacity: 0;
+  transform: translateY(10px);
+  transition-delay: 0s;
+}
+
+.bottom-copy.is-leaving .heading h1 .char {
+  opacity: 0;
+  transform: translateY(0.35em);
+  filter: blur(4px);
+  transition:
+    opacity 280ms var(--ease-scene),
+    transform 280ms var(--ease-scene),
+    filter 280ms var(--ease-scene);
+  transition-delay: 0s;
+}
+
+/* Enter: layers start hidden */
+.bottom-copy.is-entering:not(.is-in) .eyebrow,
+.bottom-copy.is-entering:not(.is-in) .aside {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.bottom-copy.is-entering:not(.is-in) .heading h1 .char {
+  opacity: 0;
+  transform: translateY(0.55em);
+  filter: blur(6px);
+}
+
+/* Enter: subtitle (layer 0) → title chars (layer +0.1s) → aside (+0.2s) */
+.bottom-copy.is-entering.is-in .eyebrow {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+.bottom-copy.is-entering.is-in .heading h1 .char {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity var(--copy-ms) var(--ease-char),
+    transform var(--copy-ms) var(--ease-char),
+    filter var(--copy-ms) var(--ease-char);
+  transition-delay: calc(var(--layer-gap) + (var(--i) * var(--char-stagger)));
+}
+
+.bottom-copy.is-entering.is-in .aside {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--layer-gap) * 2);
+}
+
+/* ─── Destinations carousel (Figma 605:6580) ─── */
+.stage[data-view="destinations"] .area,
+.stage[data-view="destinations"] .country-btn,
+.stage[data-view="destinations"] .bottom-copy {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.stage[data-view="home"] .destinations,
+.stage:not([data-view="destinations"]) .destinations {
+  display: none;
+}
+
+.destinations {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.destinations[hidden] {
+  display: none !important;
+}
+
+.carousel {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  outline: none;
+}
+
+.carousel.is-dragging {
+  cursor: grabbing;
+}
+
+.carousel__viewport {
+  position: absolute;
+  left: 50%;
+  /* Align with home area vertical center (Figma center area top 357 / 900) */
+  top: calc(357 / 900 * 100%);
+  width: 100%;
+  height: var(--area-h);
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.carousel__track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 100%;
+}
+
+.carousel__item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--area-w);
+  height: var(--area-h);
+  margin-left: calc(var(--area-w) / -2);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.carousel.is-dragging .carousel__item {
+  cursor: grabbing;
+}
+
+.carousel__item.is-center {
+  cursor: pointer;
+}
+
+.carousel__item .carousel__area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Reuse home roof/shadow vars via data-country on the item */
+.carousel__item[data-country="china"] {
+  --roof-x: -180px;
+  --roof-y: -508px;
+  --roof-w: 841px;
+  --roof-h: 841px;
+}
+
+.carousel__item[data-country="japan"] {
+  --roof-x: -71px;
+  --roof-y: -367px;
+  --roof-w: 634px;
+  --roof-h: 634px;
+}
+
+.carousel__item[data-country="vietnam"] {
+  --roof-x: -92px;
+  --roof-y: -399px;
+  --roof-w: 676px;
+  --roof-h: 676px;
+}
+
+.carousel__item[data-country="kazakhstan"] {
+  --roof-x: -14px;
+  --roof-y: -206px;
+  --roof-w: 519px;
+  --roof-h: 271px;
+}
+
+.carousel__item[data-country="russia"] {
+  --roof-x: -36px;
+  --roof-y: -247px;
+  --roof-w: 564px;
+  --roof-h: 284px;
+}
+
+.carousel__item[data-country="france"] {
+  --roof-x: -38px;
+  --roof-y: -267px;
+  --roof-w: 569px;
+  --roof-h: 271px;
+}
+
+.carousel__item[data-country="india"] {
+  --roof-x: -95px;
+  --roof-y: -343px;
+  --roof-w: 681px;
+  --roof-h: 466px;
+}
+
+.carousel__item[data-country="uk"] {
+  --roof-x: -81px;
+  --roof-y: -296px;
+  --roof-w: 625px;
+  --roof-h: 411px;
+}
+
+.carousel__item[data-country="norway"] {
+  --roof-x: -82px;
+  --roof-y: -226px;
+  --roof-w: 655px;
+  --roof-h: 248px;
+}
+
+.carousel__item[data-country="italy"] {
+  --roof-x: -32px;
+  --roof-y: -418px;
+  --roof-w: 547px;
+  --roof-h: 500px;
+}
+
+.carousel__item[data-country="usa"] {
+  --roof-x: -77px;
+  --roof-y: -276px;
+  --roof-w: 629px;
+  --roof-h: 285px;
+}
+
+.carousel__item[data-country="brazil"] {
+  --roof-x: -77px;
+  --roof-y: -236px;
+  --roof-w: 629px;
+  --roof-h: 259px;
+}
+
+.carousel__item[data-country="iran"] {
+  --roof-x: -77px;
+  --roof-y: -220px;
+  --roof-w: 629px;
+  --roof-h: 228px;
+}
+
+.carousel__item .shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--shadow-w);
+  height: var(--shadow-h);
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.carousel__item .strings {
+  z-index: 2;
+  pointer-events: none;
+}
+
+.carousel__item .strings canvas {
+  pointer-events: none;
+}
+
+.carousel__item .roof {
+  position: absolute;
+  left: var(--roof-x);
+  top: var(--roof-y);
+  width: var(--roof-w);
+  height: var(--roof-h);
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.carousel__item .roof img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.carousel__item[data-country="kazakhstan"] .roof img,
+.carousel__item[data-country="russia"] .roof img,
+.carousel__item[data-country="france"] .roof img,
+.carousel__item[data-country="india"] .roof img,
+.carousel__item[data-country="uk"] .roof img,
+.carousel__item[data-country="norway"] .roof img,
+.carousel__item[data-country="italy"] .roof img,
+.carousel__item[data-country="usa"] .roof img,
+.carousel__item[data-country="brazil"] .roof img,
+.carousel__item[data-country="iran"] .roof img {
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+/* Configure panel — Budarina parchment / ink (not default Tweakpane chrome) */
+.tp-dfwv,
+.budarina-pane {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+  top: 72px !important;
+  right: max(16px, var(--pad-x)) !important;
+  width: min(300px, calc(100vw - 32px)) !important;
+  font-family: var(--mono) !important;
+  letter-spacing: -0.04em;
+
+  --tp-base-background-color: rgba(244, 234, 216, 0.96);
+  --tp-base-shadow-color: rgba(58, 45, 42, 0.2);
+  --tp-button-background-color: #58423c;
+  --tp-button-background-color-hover: #3a2d2a;
+  --tp-button-background-color-active: #2c221f;
+  --tp-button-background-color-focus: #3a2d2a;
+  --tp-button-foreground-color: #f6ecda;
+  --tp-container-background-color: rgba(88, 66, 60, 0.07);
+  --tp-container-background-color-hover: rgba(88, 66, 60, 0.11);
+  --tp-container-background-color-focus: rgba(88, 66, 60, 0.13);
+  --tp-container-background-color-active: rgba(88, 66, 60, 0.15);
+  --tp-container-foreground-color: #3a2d2a;
+  --tp-groove-foreground-color: rgba(88, 66, 60, 0.16);
+  --tp-input-background-color: rgba(255, 249, 238, 0.92);
+  --tp-input-background-color-hover: #fffaf0;
+  --tp-input-background-color-focus: #fffdf7;
+  --tp-input-background-color-active: #fffdf7;
+  --tp-input-foreground-color: #3a2d2a;
+  --tp-label-foreground-color: rgba(88, 66, 60, 0.78);
+  --tp-monitor-background-color: rgba(88, 66, 60, 0.06);
+  --tp-monitor-foreground-color: #58423c;
+}
+
+.tp-dfwv .tp-rotv_t,
+.budarina-pane .tp-rotv_t {
+  font-family: var(--display) !important;
+  font-weight: 500;
+  font-size: 15px !important;
+  letter-spacing: -0.05em;
+  color: var(--ink-strong) !important;
+}
+
+.tp-dfwv .tp-fldv_t,
+.budarina-pane .tp-fldv_t {
+  font-family: var(--mono) !important;
+  font-size: 11px !important;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.tp-dfwv .tp-lblv_l,
+.budarina-pane .tp-lblv_l {
+  font-size: 11px !important;
+}
+
+.tp-dfwv .tp-btnv_b,
+.budarina-pane .tp-btnv_b {
+  font-family: var(--display) !important;
+  font-size: 13px !important;
+  letter-spacing: -0.04em;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 960px) {
+  .tp-dfwv,
+  .budarina-pane {
+    top: 56px !important;
+    width: min(280px, calc(100vw - 24px)) !important;
+  }
+}
+
+/*
+ * Mobile:
+ * Vietnam / Japan left + right; area ~58vw; sits above eyebrow/title.
+ * Keep chrome/selectors/type near desktop scale — don’t micro-size.
+ */
+@media (max-width: 960px) {
+  :root {
+    --pad-x: 24px;
+    --pad-bottom: 36px;
+    --area-w: 58vw;
+    --area-h: calc(var(--area-w) * 468 / 492);
+    --strings-pad: calc(420 / 492 * var(--area-w));
+    /* Room for eyebrow + multi-line title, then a clear gap to the scene */
+    /* Fallback until JS pins area 64px above eyebrow (layoutAreaAboveCopy) */
+    --heading-reserve: 142px;
+    --copy-gap: 64px;
+  }
+
+  .topbar {
+    top: 20px;
+  }
+
+  .brand-nav {
+    gap: 20px;
+  }
+
+  .brand {
+    font-size: 14px;
+  }
+
+  .menu {
+    display: none !important;
+  }
+
+  .menu a {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .about-btn {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .dot {
+    width: 2px;
+    height: 2px;
+  }
+
+  .mobile-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    white-space: nowrap;
+  }
+
+  /* Keep bottom nav (tabs + About) on destinations/contributions */
+  .stage[data-view="destinations"] .bottom-copy,
+  .stage[data-view="contributions"] .bottom-copy {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: none;
+  }
+
+  .stage[data-view="destinations"] .heading,
+  .stage[data-view="destinations"] .aside,
+  .stage[data-view="contributions"] .heading,
+  .stage[data-view="contributions"] .aside {
+    display: none;
+  }
+
+  .stage[data-view="destinations"] .aside-actions,
+  .stage[data-view="contributions"] .aside-actions {
+    pointer-events: auto;
+  }
+
+  .chat-btn {
+    width: 96px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .chat-btn__label {
+    line-height: 32px;
+  }
+
+  /* Country selectors — left / right, near-desktop size */
+  .country-btn {
+    top: 88px;
+    bottom: auto;
+    width: 72px;
+    height: 72px;
+    padding: 4px;
+    background-size: 76px 76px;
+    z-index: 40;
+  }
+
+  .country-btn--left {
+    left: var(--pad-x);
+    right: auto;
+  }
+
+  .country-btn--right {
+    left: auto;
+    right: var(--pad-x);
+  }
+
+  .country-btn__icon {
+    width: 56px;
+    height: 18px;
+  }
+
+  .country-btn[data-country="japan"] .country-btn__icon,
+  .country-btn[data-country="china"] .country-btn__icon {
+    width: 64px;
+    height: 18px;
+  }
+
+  .country-btn[data-country="kazakhstan"] .country-btn__icon {
+    width: 54px;
+    height: 26px;
+  }
+
+  .country-btn[data-country="russia"] .country-btn__icon {
+    width: 58px;
+    height: 28px;
+  }
+
+  .country-btn[data-country="france"] .country-btn__icon {
+    width: 48px;
+    height: 26px;
+  }
+
+  .country-btn[data-country="india"] .country-btn__icon {
+    width: 58px;
+    height: 36px;
+  }
+
+  .country-btn[data-country="uk"] .country-btn__icon {
+    width: 52px;
+    height: 36px;
+  }
+
+  .country-btn[data-country="norway"] .country-btn__icon {
+    width: 52px;
+    height: 24px;
+  }
+
+  .country-btn[data-country="italy"] .country-btn__icon {
+    width: 46px;
+    height: 42px;
+  }
+
+  .country-btn[data-country="usa"] .country-btn__icon {
+    width: 54px;
+    height: 30px;
+  }
+
+  .country-btn[data-country="brazil"] .country-btn__icon {
+    width: 54px;
+    height: 24px;
+  }
+
+  .country-btn[data-country="iran"] .country-btn__icon {
+    width: 54px;
+    height: 22px;
+  }
+
+  .country-btn__label {
+    font-size: 14px;
+  }
+
+  .country-btn[data-country="kazakhstan"] .country-btn__label {
+    font-size: 11px;
+  }
+
+  /* Area above eyebrow/title */
+  .area {
+    top: auto;
+    bottom: calc(var(--pad-bottom) + var(--heading-reserve) + var(--copy-gap));
+    width: var(--area-w);
+    height: var(--area-h);
+    transform: translateX(-50%);
+    z-index: 1;
+    overflow: visible;
+  }
+
+  .area[data-country="china"] {
+    --roof-x: calc(-180 / 492 * var(--area-w));
+    --roof-y: calc(-508 / 492 * var(--area-w));
+    --roof-w: calc(841 / 492 * var(--area-w));
+    --roof-h: calc(841 / 492 * var(--area-w));
+  }
+
+  .area[data-country="japan"] {
+    --roof-x: calc(-71 / 492 * var(--area-w));
+    --roof-y: calc(-367 / 492 * var(--area-w));
+    --roof-w: calc(634 / 492 * var(--area-w));
+    --roof-h: calc(634 / 492 * var(--area-w));
+  }
+
+  .area[data-country="vietnam"] {
+    --roof-x: calc(-92 / 492 * var(--area-w));
+    --roof-y: calc(-399 / 492 * var(--area-w));
+    --roof-w: calc(676 / 492 * var(--area-w));
+    --roof-h: calc(676 / 492 * var(--area-w));
+  }
+
+  .area[data-country="kazakhstan"] {
+    --roof-x: calc(-14 / 492 * var(--area-w));
+    --roof-y: calc(-206 / 492 * var(--area-w));
+    --roof-w: calc(519 / 492 * var(--area-w));
+    --roof-h: calc(271 / 492 * var(--area-w));
+  }
+
+  .area[data-country="russia"] {
+    --roof-x: calc(-36 / 492 * var(--area-w));
+    --roof-y: calc(-247 / 492 * var(--area-w));
+    --roof-w: calc(564 / 492 * var(--area-w));
+    --roof-h: calc(284 / 492 * var(--area-w));
+  }
+
+  .area[data-country="france"] {
+    --roof-x: calc(-38 / 492 * var(--area-w));
+    --roof-y: calc(-267 / 492 * var(--area-w));
+    --roof-w: calc(569 / 492 * var(--area-w));
+    --roof-h: calc(271 / 492 * var(--area-w));
+  }
+
+  .area[data-country="india"] {
+    --roof-x: calc(-95 / 492 * var(--area-w));
+    --roof-y: calc(-343 / 492 * var(--area-w));
+    --roof-w: calc(681 / 492 * var(--area-w));
+    --roof-h: calc(466 / 492 * var(--area-w));
+  }
+
+  .area[data-country="uk"] {
+    --roof-x: calc(-81 / 492 * var(--area-w));
+    --roof-y: calc(-296 / 492 * var(--area-w));
+    --roof-w: calc(625 / 492 * var(--area-w));
+    --roof-h: calc(411 / 492 * var(--area-w));
+  }
+
+  .area[data-country="norway"] {
+    --roof-x: calc(-82 / 492 * var(--area-w));
+    --roof-y: calc(-226 / 492 * var(--area-w));
+    --roof-w: calc(655 / 492 * var(--area-w));
+    --roof-h: calc(248 / 492 * var(--area-w));
+  }
+
+  .area[data-country="italy"] {
+    --roof-x: calc(-32 / 492 * var(--area-w));
+    --roof-y: calc(-418 / 492 * var(--area-w));
+    --roof-w: calc(547 / 492 * var(--area-w));
+    --roof-h: calc(500 / 492 * var(--area-w));
+  }
+
+  .area[data-country="usa"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-276 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(285 / 492 * var(--area-w));
+  }
+
+  .area[data-country="brazil"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-236 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(259 / 492 * var(--area-w));
+  }
+
+  .area[data-country="iran"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-220 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(228 / 492 * var(--area-w));
+  }
+
+  .shadow {
+    --shadow-w: calc(996 / 492 * var(--area-w));
+    --shadow-h: var(--area-h);
+    width: var(--shadow-w);
+    height: var(--shadow-h);
+  }
+
+  .strings {
+    --pad: var(--strings-pad);
+    left: calc(var(--pad) * -1);
+    top: calc(var(--pad) * -1);
+    width: calc(100% + var(--pad) * 2);
+    height: calc(100% + var(--pad) * 2);
+  }
+
+  .bottom-copy {
+    top: auto;
+    bottom: var(--pad-bottom);
+    left: var(--pad-x);
+    right: var(--pad-x);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 14px;
+    z-index: 20;
+  }
+
+  .heading {
+    width: 100%;
+    max-width: 100%;
+    gap: 14px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .heading h1 {
+    font-size: clamp(28px, 7vw, 36px);
+  }
+
+  .aside {
+    display: none;
+  }
+
+  .aside-block {
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    margin-bottom: 0;
+    align-self: flex-start;
+  }
+
+  .carousel__viewport {
+    top: auto;
+    bottom: calc(var(--pad-bottom) + var(--heading-reserve) + var(--copy-gap));
+    width: var(--area-w);
+    height: var(--area-h);
+    transform: translateX(-50%);
+  }
+
+  /* Destinations: roofs must scale with the same --area-w as home (not desktop px) */
+  .carousel__item[data-country="china"] {
+    --roof-x: calc(-180 / 492 * var(--area-w));
+    --roof-y: calc(-508 / 492 * var(--area-w));
+    --roof-w: calc(841 / 492 * var(--area-w));
+    --roof-h: calc(841 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="japan"] {
+    --roof-x: calc(-71 / 492 * var(--area-w));
+    --roof-y: calc(-367 / 492 * var(--area-w));
+    --roof-w: calc(634 / 492 * var(--area-w));
+    --roof-h: calc(634 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="vietnam"] {
+    --roof-x: calc(-92 / 492 * var(--area-w));
+    --roof-y: calc(-399 / 492 * var(--area-w));
+    --roof-w: calc(676 / 492 * var(--area-w));
+    --roof-h: calc(676 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="kazakhstan"] {
+    --roof-x: calc(-14 / 492 * var(--area-w));
+    --roof-y: calc(-206 / 492 * var(--area-w));
+    --roof-w: calc(519 / 492 * var(--area-w));
+    --roof-h: calc(271 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="russia"] {
+    --roof-x: calc(-36 / 492 * var(--area-w));
+    --roof-y: calc(-247 / 492 * var(--area-w));
+    --roof-w: calc(564 / 492 * var(--area-w));
+    --roof-h: calc(284 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="france"] {
+    --roof-x: calc(-38 / 492 * var(--area-w));
+    --roof-y: calc(-267 / 492 * var(--area-w));
+    --roof-w: calc(569 / 492 * var(--area-w));
+    --roof-h: calc(271 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="india"] {
+    --roof-x: calc(-95 / 492 * var(--area-w));
+    --roof-y: calc(-343 / 492 * var(--area-w));
+    --roof-w: calc(681 / 492 * var(--area-w));
+    --roof-h: calc(466 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="uk"] {
+    --roof-x: calc(-81 / 492 * var(--area-w));
+    --roof-y: calc(-296 / 492 * var(--area-w));
+    --roof-w: calc(625 / 492 * var(--area-w));
+    --roof-h: calc(411 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="norway"] {
+    --roof-x: calc(-82 / 492 * var(--area-w));
+    --roof-y: calc(-226 / 492 * var(--area-w));
+    --roof-w: calc(655 / 492 * var(--area-w));
+    --roof-h: calc(248 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="italy"] {
+    --roof-x: calc(-32 / 492 * var(--area-w));
+    --roof-y: calc(-418 / 492 * var(--area-w));
+    --roof-w: calc(547 / 492 * var(--area-w));
+    --roof-h: calc(500 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="usa"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-276 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(285 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="brazil"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-236 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(259 / 492 * var(--area-w));
+  }
+
+  .carousel__item[data-country="iran"] {
+    --roof-x: calc(-77 / 492 * var(--area-w));
+    --roof-y: calc(-220 / 492 * var(--area-w));
+    --roof-w: calc(629 / 492 * var(--area-w));
+    --roof-h: calc(228 / 492 * var(--area-w));
+  }
+
+  .carousel__item .shadow {
+    --shadow-w: calc(996 / 492 * var(--area-w));
+    --shadow-h: var(--area-h);
+    width: var(--shadow-w);
+    height: var(--shadow-h);
+  }
+
+  .carousel__item .strings {
+    --pad: var(--strings-pad);
+    left: calc(var(--pad) * -1);
+    top: calc(var(--pad) * -1);
+    width: calc(100% + var(--pad) * 2);
+    height: calc(100% + var(--pad) * 2);
+  }
+
+  /* Destinations view: center the carousel (home copy is hidden) */
+  .stage[data-view="destinations"] .carousel__viewport {
+    top: 48%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 960px) and (max-height: 640px) {
+  :root {
+    --area-w: 50vw;
+    --area-h: calc(var(--area-w) * 468 / 492);
+    --strings-pad: calc(420 / 492 * var(--area-w));
+    --heading-reserve: 120px;
+    --copy-gap: 20px;
+    --pad-bottom: 24px;
+  }
+
+  .country-btn {
+    top: 72px;
+    width: 64px;
+    height: 64px;
+    background-size: 68px 68px;
+  }
+
+  .heading h1 {
+    font-size: clamp(24px, 6.5vw, 30px);
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --pad-x: 16px;
+    --area-w: 62vw;
+    --area-h: calc(var(--area-w) * 468 / 492);
+    --strings-pad: calc(420 / 492 * var(--area-w));
+  }
+
+  .menu {
+    display: none;
+  }
+}
+
+.chat-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.menu a[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.45;
+}
